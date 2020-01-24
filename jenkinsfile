@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'maven_version', defaultValue: 'Jenkins-maven')
+        string(name: 'branch', defaultValue: 'master')
+        string(name: 'url', defaultValue: 'https://github.com/Bharat786/helloworld')
+        string(name: 'java_version', defaultValue: 'jdk8')
+        string(name: 'profile', defaultValue: 'default')
+    }
+    tools {
+        maven "${params.maven_version}"  
+        jdk "${params.java_version}"
+    }
+    stages {
+        stage ('clone'){
+            steps {
+                git branch: '${branch}',
+                url: '${url}'
+                
+            }
+        }
+        stage('Build') { 
+            steps {
+                sh 'mvn -B -DskipTests clean package -P ${profile}' 
+            }
+        }
+        stage('Deploy'){
+            steps {
+                echo "***************"
+                echo "Deploying JAR"
+                echo "***************"
+                sh 'java -jar /var/jenkins_home/workspace/maven-job/target/my-app-1.0-SNAPSHOT.jar'
+            }
+        }
+    }
+}
+        
